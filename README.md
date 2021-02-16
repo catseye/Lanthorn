@@ -1,6 +1,10 @@
 Lanthorn
 ========
 
+_Proof of Concept_
+| _See also:_ [Lariat](https://github.com/catseye/Lariat#readme)
+∘ [Iphigeneia](https://github.com/catseye/Iphigeneia#readme)
+
 When I first came across a explanation of how `letrec` works, it was
 in terms of updating references: each of the names is bound to a cell,
 and when the thing that name refers to is eventually defined, that cell
