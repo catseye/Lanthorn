@@ -1,0 +1,5 @@
+let
+    oddp  = fun(x, evenp0, oddp0) -> if eq(x, 0) then false else evenp0(sub(x, 1), evenp0, oddp0)
+    evenp = fun(x, evenp0, oddp0) -> if eq(x, 0) then true else oddp0(sub(x, 1), evenp0, oddp0)
+in
+    evenp(8, evenp, oddp)

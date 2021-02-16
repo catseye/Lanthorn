@@ -1,0 +1,5 @@
+letrec
+    oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+    evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+in
+    evenp(6)

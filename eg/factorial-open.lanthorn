@@ -1,0 +1,5 @@
+let
+    fact0 = fun(n, f) -> if eq(n,1) then 1 else mul(n,f(sub(n, 1), f))
+    fact  = fun(n)    -> fact0(n, fact0)
+in
+    fact(5)
