@@ -6,8 +6,8 @@ data Value = Number Integer
 
 instance Show Value where
     show (Number n)      = (show n)
-    show (Boolean True)  = "#t"
-    show (Boolean False) = "#f"
+    show (Boolean True)  = "true"
+    show (Boolean False) = "false"
     show (Function f)    = "<<function>>"
 
 instance Eq Value where
