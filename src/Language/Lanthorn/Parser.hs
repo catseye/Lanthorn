@@ -6,76 +6,178 @@ import Text.ParserCombinators.Parsec
 import Language.Lanthorn.AST
 
 
+-- Body ::= Expr.
+-- Expr ::= Import
+--        | Export
+--        | LetExpr
+--        | IfExpr
+--        | LetRec
+--        | Primitive
+--        | RefOrApp
+--        .
+-- Import ::= "import" {ImportFrom} "in" Expr.
+-- ImportFrom ::= ImportSpec {"," ImportSpec} "from" ModuleRef.
+-- ImportSpec ::= Name ["as" Name ["infixl" IntLit]].
+-- ModuleRef ::= "module" "(" StrLit ")" | "builtins".
 --
--- Expr        ::= LetExpr | CaseExpr | IfExpr | Primitive | Application.
+-- Export ::= "export" "(" Name {"," Name} ")".
+--
 -- LetExpr     ::= "let" Name "=" Expr {"," Name "=" Expr} "in" Expr.
 -- IfExpr      ::= "if" Expr "then" Expr "else" Expr.
--- Primitive   ::= NumLit | FunLit.
--- FunLit      ::= "fun" "(" Name {"," Name} ")" "->" Expr.
--- Reference   ::= Name [Application].
--- Application ::= "(" [Expr {"," Expr}] ")".
--- NumLit      ::= <<0-9+>> .
--- Name        ::= <<letters>> .
+-- LetRec ::= "letrec" {Binding} "in" Expr.
+-- Binding ::= Name "=" Expr.
 --
+-- RefOrApp ::= Name ["(" Expr {"," Expr} ")"].
+--
+-- Primitive = IntLit | StrLit | FunLit
+-- IntLit ::= <the usual>
+-- StrLit ::= <the usual>
+-- FunLit ::= "fun" "(" [Name {"," Name}] ")" "->" Expr.
+
+data ParseContext = ParseContext Integer
 
 --
 -- High level: Expressions
 --
 
-expr = letRecExpr <|> letExpr <|> ifExpr <|> primitive <|> reference
+expr p = (importExpr p) <|> (exportExpr p) <|> (letRecExpr p) <|> (letExpr p) <|> (ifExpr p) <|> (primitive p) <|> (refOrApp p)
 
-letRecExpr = do
+--
+-- import
+--
+
+importExpr pctx = do
+    keyword "import"
+    i <- many (importFrom)
+    keyword "in"
+    -- TODO create modified parse context here
+    e <- expr pctx
+    return $ Import i e
+
+importFrom = do
+    notFollowedBy (keyword "in")
+    i <- sepBy (importSpec) (keyword ",")
+    keyword "from"
+    e <- moduleSpec  -- TODO in a better world this would be an expression
+    return $ ImportFrom i e
+
+importSpec = do
+    n <- name
+    nn <- option Nothing importAs
+    return $ ImportSpec n nn
+
+importAs = do
+    keyword "as"
+    nn <- name
+    return $ Just nn
+
+moduleSpec = builtinsModule <|> namedModule
+
+builtinsModule = do
+    keyword "builtins"
+    return $ Builtins
+
+namedModule = do
+    keyword "module"
+    keyword "("
+    (StrLit s) <- strLit
+    keyword ")"
+    return $ ModuleSpec s
+
+--
+-- export
+--
+
+exportExpr pctx = do
+    keyword "export"
+    keyword "("
+    es <- sepBy (name) (keyword ",")
+    keyword ")"
+    return $ Export es
+
+--
+-- letrec
+--
+
+letRecExpr pctx = do
     keyword "letrec"
-    b <- many (binding)
+    b <- many (binding pctx)
     keyword "in"
-    e <- expr
-    return (LetRec b e)
+    e <- expr pctx
+    return $ LetRec b e
 
-letExpr = do
-    keyword "let"
-    b <- many (binding)
-    keyword "in"
-    e <- expr
-    return (LetStar b e)
-
-binding = do
+binding pctx = do
     notFollowedBy (keyword "in")
     n <- name
     keyword "="
-    e <- expr
+    e <- expr pctx
     return (n, e)
 
-ifExpr = do
+--
+-- others
+--
+
+letExpr pctx = do
+    keyword "let"
+    b <- many (binding pctx)
+    keyword "in"
+    e <- expr pctx
+    return $ LetStar b e
+
+ifExpr pctx = do
     keyword "if"
-    c <- expr
+    c <- expr pctx
     keyword "then"
-    t <- expr
+    t <- expr pctx
     keyword "else"
-    f <- expr
-    return (If c t f)
+    f <- expr pctx
+    return $ If c t f
 
 --
 -- Primitives
 ---
 
-primitive = funLit <|> numLit
+primitive pctx = (funLit pctx) <|> intLit <|> strLit
 
-funLit = do
+funLit pctx = do
     keyword "fun"
     keyword "("
     formals <- sepBy (name) (keyword ",")
     keyword ")"
     keyword "->"
-    body <- expr
+    body <- expr pctx
     return (Fun formals body)
 
-reference = do
-    n <- name
-    application n <|> return (ValueOf n)
+strLit = do
+    string "'"
+    sentinel <- many $ satisfy (\x -> x /= '\'')
+    string "'"
+    contents <- many $ satisfy (\x -> x /= '\'')
+    string "'"
+    (try $ stringTail sentinel contents) <|> (stringCont sentinel contents)
 
-application n = do
+stringCont sentinel contents = do
+    contents' <- many $ satisfy (\x -> x /= '\'')
+    let contents'' = contents ++ "'" ++ contents'
+    string "'"
+    (try $ stringTail sentinel contents'') <|> (stringCont sentinel contents'')
+
+stringTail sentinel contents = do
+    string sentinel
+    string "'"
+    return $ StrLit contents
+
+--
+-- Reference or Application
+--
+
+refOrApp pctx = do
+    n <- name
+    application pctx n <|> return (ValueOf n)
+
+application pctx n = do
     keyword "("
-    actuals <- sepBy (expr) (keyword ",")
+    actuals <- sepBy (expr pctx) (keyword ",")
     keyword ")"
     return (Apply n actuals)
 
@@ -94,13 +196,13 @@ name = do
     spaces
     return (c:cs)
 
-numLit = do
+intLit = do
     ds <- many1 digit
     spaces
-    return (NumLit (read ds))
+    return (IntLit (read ds))
 
 --
 -- Driver
 --
 
-parseExpr text = parse expr "" text
+parseExpr text = parse (expr (ParseContext 0)) "" text

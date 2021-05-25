@@ -13,7 +13,7 @@ evalTopLevelExpr expr =
 -- Evaluator
 --
 
-evalExpr env (NumLit i) = Value.Number i
+evalExpr env (IntLit i) = Value.Number i
 
 evalExpr env (ValueOf name) = case Env.lookup name env of
     Just value -> value
