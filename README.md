@@ -207,7 +207,7 @@ Can't shadow a binding in the formals of a `fun`.
         evenp(5)
     ===> false
 
-Nested `letrec`.  Nested inside an `if` inside a function definition.
+Nested `letrec`.  Nested inside an `if` inside a function definition in an arm.
 
     letrec
         facto = fun(n) -> if eq(n, 1) then 1 else
@@ -223,6 +223,22 @@ Nested `letrec`.  Nested inside an `if` inside a function definition.
         facto(8)
     ===> 105
 
+Nested `letrec`, nested in the body.
+
+    letrec
+        oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+        evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+    in
+        letrec facto = fun(n) ->
+            if eq(n, 1) then
+                1
+            else if oddp(n) then
+                mul(n, facto(sub(n, 1)))
+            else
+                facto(sub(n, 1))
+    in
+        facto(8)
+    ===> 105
 
 Nested `letrec`, nested right in the arm of another `letrec`.  Currently,
 this is an error, because the inner scope cannot "see" the outer `letrec`.
