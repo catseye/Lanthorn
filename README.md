@@ -206,3 +206,39 @@ Can't shadow a binding in the formals of a `fun`.
     in
         evenp(5)
     ===> false
+
+Nested `letrec`.  Nested inside an `if` inside a function definition.
+
+    letrec
+        facto = fun(n) -> if eq(n, 1) then 1 else
+            letrec
+                oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+                evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+            in
+                if oddp(n) then
+                    mul(n, facto(sub(n, 1)))
+                else
+                    facto(sub(n, 1))
+    in
+        facto(8)
+    ===> 105
+
+
+Nested `letrec`, nested right in the arm of another `letrec`.  Currently,
+this is an error, because the inner scope cannot "see" the outer `letrec`.
+Though I'm not yet convinced of what the most reasonable behaviour is here.
+
+    letrec
+        facto =
+            letrec
+                oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+                evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+            in
+                fun(n) -> if eq(n, 1) then 1 else
+                    if oddp(n) then
+                        mul(n, facto(sub(n, 1)))
+                    else
+                        facto(sub(n, 1))
+    in
+        facto(8)
+    ???> Not in scope: facto
