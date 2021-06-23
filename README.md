@@ -85,7 +85,7 @@ Here is what it produces:
     => in
     =>   even(6)
 
-In English, it add a number of extra parameters to each function in
+In English, it adds a number of extra parameters to each function in
 the set of bindings.  Specifically, it adds one parameter for each
 of the bindings.  It then sets up some bindings _inside_ each function
 so that the function uses these parameters for the recursive calls
@@ -265,7 +265,7 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
 `letrec` nested inside a function definition inside an arm of a plain `let`.
 
     let
-        factoo = fun(f,n) ->
+        factoo = fun(f, n) ->
             letrec
                 oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
                 evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
@@ -282,7 +282,7 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
 `letrec` nested inside body of a plain `let`.
 
     let
-        factopen = fun(f,n) -> if eq(n, 1) then 1 else f(f, sub(n, 1))
+        factopen = fun(f, n) -> if eq(n, 1) then 1 else f(f, sub(n, 1))
         target = 7
     in
         letrec
