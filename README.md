@@ -191,7 +191,9 @@ Can't shadow a binding in the formals of a `fun`.
     let r = fun(x) -> let x = 3 in x in r(10)
     ???> Already defined: x
 
-`letrec`.
+#### `letrec`
+
+Basic usage of `letrec`.
 
     letrec
         oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
@@ -207,7 +209,8 @@ Can't shadow a binding in the formals of a `fun`.
         evenp(5)
     ===> false
 
-Nested `letrec`.  Nested inside an `if` inside a function definition in an arm.
+`letrec` nested inside an `if` inside a function definition in an arm of
+another `letrec`.
 
     letrec
         facto = fun(n) -> if eq(n, 1) then 1 else
@@ -223,7 +226,7 @@ Nested `letrec`.  Nested inside an `if` inside a function definition in an arm.
         facto(8)
     ===> 105
 
-Nested `letrec`, nested in the body.
+`letrec` nested in the body of another `letrec`.
 
     letrec
         oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
@@ -258,3 +261,33 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
     in
         facto(8)
     ???> Not in scope: facto
+
+`letrec` nested inside a function definition inside an arm of a plain `let`.
+
+    let
+        factoo = fun(f,n) ->
+            letrec
+                oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+                evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+            in
+                if eq(n, 1) then 1 else
+                    if oddp(n) then
+                        mul(n, f(f, sub(n, 1)))
+                    else
+                        f(f, sub(n, 1))
+    in
+        factoo(factoo, 7)
+    ===> 105
+
+`letrec` nested inside body of a plain `let`.
+
+    let
+        factopen = fun(f,n) -> if eq(n, 1) then 1 else f(f, sub(n, 1))
+        target = 7
+    in
+        letrec
+            oddp  = fun(x) -> if eq(x, 0) then false else evenp(sub(x, 1))
+            evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
+        in
+            if oddp(target) then factopen(factopen, target) else 0
+    ===> 105
