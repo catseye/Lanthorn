@@ -7,7 +7,8 @@ convert (Fun formals body) = Fun formals (convert body)
 convert (Apply name args) = Apply name (map (convert) args)
 convert (LetRec bindings body) = convertToLetStar (convertBindings bindings) (convert body)
 convert (If c t f) = If (convert c) (convert t) (convert f)
-convert other = other   -- TODO: handle LetStar!
+convert (LetStar bindings body) = LetStar (convertBindings bindings) (convert body)
+convert other = other
 
 convertBindings :: [(String, Expr)] -> [(String, Expr)]
 convertBindings [] = []

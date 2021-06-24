@@ -96,9 +96,6 @@ parameters they had, hiding all these extra parameters.
 TODO
 ----
 
-*   The implementation of the transformation isn't fully general yet.
-    It needs to handle `let` inside the definitions and the body of a
-    `let`.
 *   The transformation should make more effort at name mangling
     hygiene.
 *   The transformation should retain the names of the original
@@ -282,7 +279,7 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
 `letrec` nested inside body of a plain `let`.
 
     let
-        factopen = fun(f, n) -> if eq(n, 1) then 1 else f(f, sub(n, 1))
+        factopen = fun(f, n) -> if eq(n, 1) then 1 else mul(n, f(f, sub(n, 1)))
         target = 7
     in
         letrec
@@ -290,4 +287,4 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
             evenp = fun(x) -> if eq(x, 0) then true else oddp(sub(x, 1))
         in
             if oddp(target) then factopen(factopen, target) else 0
-    ===> 105
+    ===> 5040
