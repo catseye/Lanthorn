@@ -100,8 +100,6 @@ TODO
     hygiene.
 *   The transformation should retain the names of the original
     arguments of the functions.
-*   There needs to be a test confirming that it can handle multiple
-    arguments in the original functions.
 
 Appendix A
 ----------
@@ -288,3 +286,45 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
         in
             if oddp(target) then factopen(factopen, target) else 0
     ===> 5040
+
+`letrec` works on functions that have more than one argument.
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+        evensump = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then true else oddsump(sub(x, 1), y, z)
+    in
+        evensump(5,3,1)
+    ===> false
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+        evensump = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then true else oddsump(sub(x, 1), y, z)
+    in
+        evensump(6,3,1)
+    ===> true
+
+    -> Tests for functionality "Desugar Lanthorn Program"
+
+Let's see how that gets desugared.  The innermost `let`s bind the plain
+names to functions with the same arity as the original functions.
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+        evensump = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then true else oddsump(sub(x, 1), y, z)
+    in
+        evensump(5,3,1)
+    => let
+    =>   oddsump0 = fun(x, y, z, oddsump1, evensump1) -> let
+    =>       oddsump = fun(x1, y1, z1) -> oddsump1(x1, y1, z1, oddsump1, evensump1)
+    =>       evensump = fun(x1, y1, z1) -> evensump1(x1, y1, z1, oddsump1, evensump1)
+    =>     in
+    =>       if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+    =>   evensump0 = fun(x, y, z, oddsump1, evensump1) -> let
+    =>       oddsump = fun(x1, y1, z1) -> oddsump1(x1, y1, z1, oddsump1, evensump1)
+    =>       evensump = fun(x1, y1, z1) -> evensump1(x1, y1, z1, oddsump1, evensump1)
+    =>     in
+    =>       if eq(add(x, add(y, z)), add(y, z)) then true else oddsump(sub(x, 1), y, z)
+    =>   oddsump = fun(x, y, z) -> oddsump0(x, y, z, oddsump0, evensump0)
+    =>   evensump = fun(x, y, z) -> evensump0(x, y, z, oddsump0, evensump0)
+    => in
+    =>   evensump(5, 3, 1)

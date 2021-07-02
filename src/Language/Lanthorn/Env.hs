@@ -22,6 +22,7 @@ stdEnv = extend
   [
     ("true", Boolean True),
     ("false", Boolean False),
+    ("add", Function (\[Number a, Number b] -> Number (a + b))),
     ("sub", Function (\[Number a, Number b] -> Number (a - b))),
     ("mul", Function (\[Number a, Number b] -> Number (a * b))),
     ("eq", Function (\[a, b] -> Boolean (a == b)))

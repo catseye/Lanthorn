@@ -34,7 +34,7 @@ createEnrichedBindings ((name, (Fun formals body)):rest) injecteds =
     let
         name' = wrapperNameOuter name
         formals' = formals ++ (map (wrapperNameInner) injecteds)
-        body' = (LetStar (createLocalBindings injecteds injecteds) body)
+        body' = (LetStar (createLocalBindings injecteds injecteds formals) body)
         expr' = (Fun formals' body')
         binding = (name', expr')
     in
@@ -42,14 +42,15 @@ createEnrichedBindings ((name, (Fun formals body)):rest) injecteds =
 createEnrichedBindings (binding:rest) injecteds =
     (binding:createEnrichedBindings rest injecteds)
 
-createLocalBindings [] _ = []
-createLocalBindings (injected:injecteds) allInjecteds =
+createLocalBindings [] _ _ = []
+createLocalBindings (injected:injecteds) allInjecteds formals =
     let
-        -- FIXME use the real formals of each injected identifier! also, allow shadowing!
-        actuals = map (ValueOf) (["x1"] ++ (map (wrapperNameInner) allInjecteds))
-        binding = (injected, Fun ["x1"] (Apply (wrapperNameInner injected) actuals))
+        formals' = map (wrapperNameInner) formals
+        actuals = map (ValueOf) (formals' ++ (map (wrapperNameInner) allInjecteds))
+        binding = (injected, Fun formals' (Apply (wrapperNameInner injected) actuals))
+        rest = createLocalBindings injecteds allInjecteds formals
     in
-        (binding:createLocalBindings injecteds allInjecteds)
+        (binding:rest)
 
 createWrapperBindings [] injecteds = []
 createWrapperBindings ((name, (Fun formals body)):rest) injecteds =
