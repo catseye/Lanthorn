@@ -303,10 +303,39 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
         evensump(6,3,1)
     ===> true
 
+`letrec` works on functions which use different argument names.
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+        evensump = fun(p,q,r) -> if eq(add(p, add(q, r)), add(q, r)) then true else oddsump(sub(p, 1), q, r)
+    in
+        evensump(5,3,1)
+    ===> false
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
+        evensump = fun(p,q,r) -> if eq(add(p, add(q, r)), add(q, r)) then true else oddsump(sub(p, 1), q, r)
+    in
+        evensump(6,3,1)
+    ===> true
+
+`letrec` works on functions that have differing numbers of arguments.
+
+    letrec
+        oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), add(y, z))
+        evensump = fun(p,q)   -> if eq(add(x, q), q) then true else oddsump(sub(x, 1), 1, sub(q, 1))
+    in
+        oddsump(5,3,1)
+    ===> true
+
     -> Tests for functionality "Desugar Lanthorn Program"
 
-Let's see how that gets desugared.  The innermost `let`s bind the plain
-names to functions with the same arity as the original functions.
+### Properties of the `letrec` transformation
+
+When a `letrec` is desugared, the generated functions have argument
+names that are based on the original argument names.  Also, the
+innermost `let`s bind the plain names to functions with the same arity
+as the original functions.
 
     letrec
         oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
