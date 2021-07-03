@@ -323,7 +323,7 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
 
     letrec
         oddsump  = fun(x,y,z) -> if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), add(y, z))
-        evensump = fun(p,q)   -> if eq(add(x, q), q) then true else oddsump(sub(x, 1), 1, sub(q, 1))
+        evensump = fun(p,q)   -> if eq(add(p, q), q) then true else oddsump(sub(p, 1), 1, sub(q, 1))
     in
         oddsump(5,3,1)
     ===> true
