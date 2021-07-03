@@ -33,6 +33,8 @@ createEnrichedBindings [] injecteds = []
 createEnrichedBindings ((name, (Fun formals body)):rest) injecteds =
     let
         name' = wrapperNameOuter name
+        -- FIXME we need to create one of these for each injected, using different base formals --
+        -- those of the injected, not of the current functions!
         formals' = formals ++ (map (wrapperNameInner) injecteds)
         body' = (LetStar (createLocalBindings injecteds injecteds formals) body)
         expr' = (Fun formals' body')
@@ -42,6 +44,7 @@ createEnrichedBindings ((name, (Fun formals body)):rest) injecteds =
 createEnrichedBindings (binding:rest) injecteds =
     (binding:createEnrichedBindings rest injecteds)
 
+-- FIXME we need to attach a list of formals to every injected
 createLocalBindings [] _ _ = []
 createLocalBindings (injected:injecteds) allInjecteds formals =
     let
