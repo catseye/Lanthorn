@@ -98,8 +98,6 @@ TODO
 
 *   The transformation should make more effort at name mangling
     hygiene.
-*   The transformation should retain the names of the original
-    arguments of the functions.
 
 Appendix A
 ----------
