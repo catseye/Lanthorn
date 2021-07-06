@@ -1,21 +1,17 @@
 module Language.Lanthorn.Env where
 
-import qualified Data.Map.Strict as Map
-
 import Language.Lanthorn.Value
 
-type Env = Map.Map String Value
+type Env = [(String, Value)]
 
 
-empty = Map.empty
+empty = []
 
-lookup name env = Map.lookup name env
+fetch name [] = Nothing
+fetch name ((name', value):rest) =
+   if name == name' then Just value else fetch name rest
 
-extend [] env = env
-extend ((name, value):rest) env =
-    case (Map.lookup name env) of
-        Just existing -> error ("Already defined: " ++ name)
-        Nothing -> extend rest $ Map.insert name value env
+extend bindings env = bindings ++ env
 
 
 stdEnv = extend

@@ -171,18 +171,18 @@ Note that depicting a function is implementation-dependent.
     fun(x) -> x
     ===> <<function>>
 
-Can't shadow a binding in `let`.
+Can shadow a binding in `let`.
 
     let a = 1 in let a = 2 in a
-    ???> Already defined: a
-
-Can't shadow a binding in the formals of a `fun`.
-
-    let r = fun(x, x) -> x in r(10, 10)
-    ???> Already defined: x
+    ===> 2
 
     let r = fun(x) -> let x = 3 in x in r(10)
-    ???> Already defined: x
+    ===> 3
+
+Can't duplicate a name in the formals of a `fun`.
+
+    let r = fun(x, x) -> x in r(10, 10)
+    ???> Multiply defined: x
 
 #### `letrec`
 
@@ -355,3 +355,90 @@ as the original functions.
     =>   evensump = fun(x, y, z) -> evensump0(x, y, z, oddsump0, evensump0)
     => in
     =>   evensump(5, 3, 1)
+
+The transformation mangles names that it generates so that they never
+shadow names that appear in the user's program.
+
+    let
+        odd0 = fun(a, b, c) -> a
+    in
+        letrec
+            odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+            even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+        in
+            even(6)
+    => let
+    =>   odd0 = fun(a, b, c) -> a
+    => in
+    =>   let
+    =>     odd0 = fun(x, odd1, even1) -> let
+    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
+    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>       in
+    =>         if eq(x, 0) then false else even(sub(x, 1))
+    =>     even0 = fun(x, odd1, even1) -> let
+    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
+    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>       in
+    =>         if eq(x, 0) then true else odd(sub(x, 1))
+    =>     odd = fun(x) -> odd0(x, odd0, even0)
+    =>     even = fun(x) -> even0(x, odd0, even0)
+    =>   in
+    =>     even(6)
+
+You might think that instead of mangling names, we could just allow shadowing
+in the language.  But that by itself doesn't solve our problem, since you
+could still say something like the following.  The `letrec` desugaring would
+have to be more aware of how it constructs names, at any rate, in order to
+avoid the conflict here.  And mangling is the simplest way to do that.
+
+    letrec
+        odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+        odd0 = fun(a, b, c) -> a
+        even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+    in
+        even(6)
+    => let
+    =>   odd0 = fun(x, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       if eq(x, 0) then false else even(sub(x, 1))
+    =>   odd00 = fun(a, b, c, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       a
+    =>   even0 = fun(x, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       if eq(x, 0) then true else odd(sub(x, 1))
+    =>   odd = fun(x) -> odd0(x, odd0, odd00, even0)
+    =>   odd0 = fun(a, b, c) -> odd00(a, b, c, odd0, odd00, even0)
+    =>   even = fun(x) -> even0(x, odd0, odd00, even0)
+    => in
+    =>   even(6)
+
+    -> Tests for functionality "Evaluate Lanthorn Program"
+
+    let
+        odd0 = fun(a, b, c) -> a
+    in
+        letrec
+            odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+            even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+        in
+            even(6)
+    ===> true
+
+    letrec
+        odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+        odd0 = fun(a, b, c) -> a
+        even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+    in
+        even(6)
+    ===> true
