@@ -122,6 +122,14 @@ Name binding (`let`) and name reference.
     => in
     =>   zed(a, b)
 
+The character `$` may not appear in user-supplied names.
+
+    let
+      a$b = 1
+    in
+      zed(a$b)
+    ?> unexpected "$"
+
 Conditional by boolean (`if`).
 
     if gt(a, b) then a else b
