@@ -326,9 +326,9 @@ Though I'm not yet convinced of what the most reasonable behaviour is here.
         oddsump(5,3,1)
     ===> true
 
-    -> Tests for functionality "Desugar Lanthorn Program"
-
 ### Properties of the `letrec` transformation
+
+    -> Tests for functionality "Desugar Lanthorn Program"
 
 When a `letrec` is desugared, the generated functions have argument
 names that are based on the original argument names.  Also, the
@@ -355,3 +355,94 @@ as the original functions.
     =>   evensump = fun(x, y, z) -> evensump0(x, y, z, oddsump0, evensump0)
     => in
     =>   evensump(5, 3, 1)
+
+The transformation mangles names that it generates so that they never
+shadow names that appear in the user's program.
+
+    let
+        odd0 = fun(a, b, c) -> a
+    in
+        letrec
+            odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+            even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+        in
+            even(6)
+    => let
+    =>   odd0 = fun(a, b, c) -> a
+    => in
+    =>   let
+    =>     odd0 = fun(x, odd1, even1) -> let
+    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
+    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>       in
+    =>         if eq(x, 0) then false else even(sub(x, 1))
+    =>     even0 = fun(x, odd1, even1) -> let
+    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
+    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>       in
+    =>         if eq(x, 0) then true else odd(sub(x, 1))
+    =>     odd = fun(x) -> odd0(x, odd0, even0)
+    =>     even = fun(x) -> even0(x, odd0, even0)
+    =>   in
+    =>     even(6)
+
+    -> Tests for functionality "Evaluate Lanthorn Program"
+
+    letrec
+        odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+        odd0 = fun(a, b, c) -> a
+        even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+    in
+        even(6)
+    ===> true
+
+You might think that instead of mangling names, we could just allow shadowing
+in the language.  But that by itself doesn't solve our problem, since you
+could still say something like the following.  The `letrec` desugaring would
+have to be more aware of how it constructs names, at any rate, in order to
+avoid the conflict here.  And mangling is the simplest way to do that.
+
+    -> Tests for functionality "Desugar Lanthorn Program"
+
+    letrec
+        odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+        odd0 = fun(a, b, c) -> a
+        even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+    in
+        even(6)
+    => let
+    =>   odd0 = fun(x, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       if eq(x, 0) then false else even(sub(x, 1))
+    =>   odd00 = fun(a, b, c, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       a
+    =>   even0 = fun(x, odd1, odd01, even1) -> let
+    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
+    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
+    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>     in
+    =>       if eq(x, 0) then true else odd(sub(x, 1))
+    =>   odd = fun(x) -> odd0(x, odd0, odd00, even0)
+    =>   odd0 = fun(a, b, c) -> odd00(a, b, c, odd0, odd00, even0)
+    =>   even = fun(x) -> even0(x, odd0, odd00, even0)
+    => in
+    =>   even(6)
+
+    -> Tests for functionality "Evaluate Lanthorn Program"
+
+    let
+        odd0 = fun(a, b, c) -> a
+    in
+        letrec
+            odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
+            even = fun(x) -> if eq(x, 0) then true else odd(sub(x, 1))
+        in
+            even(6)
+    ===> true
