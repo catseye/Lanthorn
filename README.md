@@ -94,6 +94,14 @@ it makes.  It also sets up some bindings outside of these functions
 to that the body of the `letrec` sees functions with the original
 parameters they had, hiding all these extra parameters.
 
+Related Work
+------------
+
+[Xavier Pinho](https://github.com/xavierpinho) has written up an
+alternative way of transforming `letrec` into `let`, using
+surjective pairing and the Y combinator, in
+[an issue on the Lanthorn project on GitHub](https://github.com/catseye/Lanthorn/issues/1).
+
 Appendix A
 ----------
 
