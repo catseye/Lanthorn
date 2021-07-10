@@ -43,7 +43,7 @@ Basically, what we want to do, is take this...
 ...and turn it into this.
 
     let
-        odd0  = fun(x, odd1, even1) ->
+        odd0  = fun(x, odd$1, even$1) ->
                      let
                          odd = fun(x) -> odd1(x, odd1, even1)
                          even = fun(x) -> even1(x, odd1, even1)
@@ -62,7 +62,8 @@ Basically, what we want to do, is take this...
 
 Our evaluator implements this transformation in the
 [Language.Lanthorn.LetRec](src/Language/Lanthorn/LetRec.hs) module.
-Here is what it produces:
+Here is what it produces.  Note there is a bit of name-mangling
+added, compared to the hand-written expansion above.
 
     letrec
         odd  = fun(x) -> if eq(x, 0) then false else even(sub(x, 1))
@@ -70,18 +71,18 @@ Here is what it produces:
     in
         even(6)
     => let
-    =>   odd0 = fun(x, odd1, even1) -> let
-    =>       odd = fun(x1) -> odd1(x1, odd1, even1)
-    =>       even = fun(x1) -> even1(x1, odd1, even1)
+    =>   odd$0 = fun(x, odd$1, even$1) -> let
+    =>       odd = fun(x$1) -> odd$1(x$1, odd$1, even$1)
+    =>       even = fun(x$1) -> even$1(x$1, odd$1, even$1)
     =>     in
     =>       if eq(x, 0) then false else even(sub(x, 1))
-    =>   even0 = fun(x, odd1, even1) -> let
-    =>       odd = fun(x1) -> odd1(x1, odd1, even1)
-    =>       even = fun(x1) -> even1(x1, odd1, even1)
+    =>   even$0 = fun(x, odd$1, even$1) -> let
+    =>       odd = fun(x$1) -> odd$1(x$1, odd$1, even$1)
+    =>       even = fun(x$1) -> even$1(x$1, odd$1, even$1)
     =>     in
     =>       if eq(x, 0) then true else odd(sub(x, 1))
-    =>   odd = fun(x) -> odd0(x, odd0, even0)
-    =>   even = fun(x) -> even0(x, odd0, even0)
+    =>   odd = fun(x) -> odd$0(x, odd$0, even$0)
+    =>   even = fun(x) -> even$0(x, odd$0, even$0)
     => in
     =>   even(6)
 
@@ -92,12 +93,6 @@ so that the function uses these parameters for the recursive calls
 it makes.  It also sets up some bindings outside of these functions
 to that the body of the `letrec` sees functions with the original
 parameters they had, hiding all these extra parameters.
-
-TODO
-----
-
-*   The transformation should make more effort at name mangling
-    hygiene.
 
 Appendix A
 ----------
@@ -349,23 +344,24 @@ as the original functions.
     in
         evensump(5,3,1)
     => let
-    =>   oddsump0 = fun(x, y, z, oddsump1, evensump1) -> let
-    =>       oddsump = fun(x1, y1, z1) -> oddsump1(x1, y1, z1, oddsump1, evensump1)
-    =>       evensump = fun(x1, y1, z1) -> evensump1(x1, y1, z1, oddsump1, evensump1)
+    =>   oddsump$0 = fun(x, y, z, oddsump$1, evensump$1) -> let
+    =>       oddsump = fun(x$1, y$1, z$1) -> oddsump$1(x$1, y$1, z$1, oddsump$1, evensump$1)
+    =>       evensump = fun(x$1, y$1, z$1) -> evensump$1(x$1, y$1, z$1, oddsump$1, evensump$1)
     =>     in
     =>       if eq(add(x, add(y, z)), add(y, z)) then false else evensump(sub(x, 1), y, z)
-    =>   evensump0 = fun(x, y, z, oddsump1, evensump1) -> let
-    =>       oddsump = fun(x1, y1, z1) -> oddsump1(x1, y1, z1, oddsump1, evensump1)
-    =>       evensump = fun(x1, y1, z1) -> evensump1(x1, y1, z1, oddsump1, evensump1)
+    =>   evensump$0 = fun(x, y, z, oddsump$1, evensump$1) -> let
+    =>       oddsump = fun(x$1, y$1, z$1) -> oddsump$1(x$1, y$1, z$1, oddsump$1, evensump$1)
+    =>       evensump = fun(x$1, y$1, z$1) -> evensump$1(x$1, y$1, z$1, oddsump$1, evensump$1)
     =>     in
     =>       if eq(add(x, add(y, z)), add(y, z)) then true else oddsump(sub(x, 1), y, z)
-    =>   oddsump = fun(x, y, z) -> oddsump0(x, y, z, oddsump0, evensump0)
-    =>   evensump = fun(x, y, z) -> evensump0(x, y, z, oddsump0, evensump0)
+    =>   oddsump = fun(x, y, z) -> oddsump$0(x, y, z, oddsump$0, evensump$0)
+    =>   evensump = fun(x, y, z) -> evensump$0(x, y, z, oddsump$0, evensump$0)
     => in
     =>   evensump(5, 3, 1)
 
 The transformation mangles names that it generates so that they never
-shadow names that appear in the user's program.
+shadow names that appear in the user's program.  (Names containing `$` may
+not appear in a user-supplied program.)
 
     let
         odd0 = fun(a, b, c) -> a
@@ -379,18 +375,18 @@ shadow names that appear in the user's program.
     =>   odd0 = fun(a, b, c) -> a
     => in
     =>   let
-    =>     odd0 = fun(x, odd1, even1) -> let
-    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
-    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>     odd$0 = fun(x, odd$1, even$1) -> let
+    =>         odd = fun(x$1) -> odd$1(x$1, odd$1, even$1)
+    =>         even = fun(x$1) -> even$1(x$1, odd$1, even$1)
     =>       in
     =>         if eq(x, 0) then false else even(sub(x, 1))
-    =>     even0 = fun(x, odd1, even1) -> let
-    =>         odd = fun(x1) -> odd1(x1, odd1, even1)
-    =>         even = fun(x1) -> even1(x1, odd1, even1)
+    =>     even$0 = fun(x, odd$1, even$1) -> let
+    =>         odd = fun(x$1) -> odd$1(x$1, odd$1, even$1)
+    =>         even = fun(x$1) -> even$1(x$1, odd$1, even$1)
     =>       in
     =>         if eq(x, 0) then true else odd(sub(x, 1))
-    =>     odd = fun(x) -> odd0(x, odd0, even0)
-    =>     even = fun(x) -> even0(x, odd0, even0)
+    =>     odd = fun(x) -> odd$0(x, odd$0, even$0)
+    =>     even = fun(x) -> even$0(x, odd$0, even$0)
     =>   in
     =>     even(6)
 
@@ -419,27 +415,27 @@ avoid the conflict here.  And mangling is the simplest way to do that.
     in
         even(6)
     => let
-    =>   odd0 = fun(x, odd1, odd01, even1) -> let
-    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
-    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
-    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>   odd$0 = fun(x, odd$1, odd0$1, even$1) -> let
+    =>       odd = fun(x$1) -> odd$1(x$1, odd$1, odd0$1, even$1)
+    =>       odd0 = fun(a$1, b$1, c$1) -> odd0$1(a$1, b$1, c$1, odd$1, odd0$1, even$1)
+    =>       even = fun(x$1) -> even$1(x$1, odd$1, odd0$1, even$1)
     =>     in
     =>       if eq(x, 0) then false else even(sub(x, 1))
-    =>   odd00 = fun(a, b, c, odd1, odd01, even1) -> let
-    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
-    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
-    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>   odd0$0 = fun(a, b, c, odd$1, odd0$1, even$1) -> let
+    =>       odd = fun(x$1) -> odd$1(x$1, odd$1, odd0$1, even$1)
+    =>       odd0 = fun(a$1, b$1, c$1) -> odd0$1(a$1, b$1, c$1, odd$1, odd0$1, even$1)
+    =>       even = fun(x$1) -> even$1(x$1, odd$1, odd0$1, even$1)
     =>     in
     =>       a
-    =>   even0 = fun(x, odd1, odd01, even1) -> let
-    =>       odd = fun(x1) -> odd1(x1, odd1, odd01, even1)
-    =>       odd0 = fun(a1, b1, c1) -> odd01(a1, b1, c1, odd1, odd01, even1)
-    =>       even = fun(x1) -> even1(x1, odd1, odd01, even1)
+    =>   even$0 = fun(x, odd$1, odd0$1, even$1) -> let
+    =>       odd = fun(x$1) -> odd$1(x$1, odd$1, odd0$1, even$1)
+    =>       odd0 = fun(a$1, b$1, c$1) -> odd0$1(a$1, b$1, c$1, odd$1, odd0$1, even$1)
+    =>       even = fun(x$1) -> even$1(x$1, odd$1, odd0$1, even$1)
     =>     in
     =>       if eq(x, 0) then true else odd(sub(x, 1))
-    =>   odd = fun(x) -> odd0(x, odd0, odd00, even0)
-    =>   odd0 = fun(a, b, c) -> odd00(a, b, c, odd0, odd00, even0)
-    =>   even = fun(x) -> even0(x, odd0, odd00, even0)
+    =>   odd = fun(x) -> odd$0(x, odd$0, odd0$0, even$0)
+    =>   odd0 = fun(a, b, c) -> odd0$0(a, b, c, odd$0, odd0$0, even$0)
+    =>   even = fun(x) -> even$0(x, odd$0, odd0$0, even$0)
     => in
     =>   even(6)
 
@@ -454,3 +450,8 @@ avoid the conflict here.  And mangling is the simplest way to do that.
         in
             even(6)
     ===> true
+
+Note that there is probably a case where a `letrec` nested another `letrec`, and
+which shadows variables of the enclosing `letrec`, produces a less readable
+error message about shadowing, because it mentions the mangled names; but
+I can live with that for now.

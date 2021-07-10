@@ -33,8 +33,8 @@ convertToLetStar bindings body =
     in
         LetStar (enrichedBindings ++ wrapperBindings) body
 
-wrapperNameOuter name = name ++ "0"  -- TODO: more hygenic!
-wrapperNameInner name = name ++ "1"
+wrapperNameOuter name = name ++ "$0"
+wrapperNameInner name = name ++ "$1"
 
 createEnrichedBindings [] injecteds = []
 createEnrichedBindings (binding@(name, (Fun formals body)):rest) injecteds =
