@@ -1,6 +1,6 @@
 module Language.Lanthorn.Env where
 
-import qualified Data.Map.Strict as Map
+import qualified Data.Map as Map
 
 import Language.Lanthorn.Value
 

@@ -22,24 +22,21 @@ import Language.Lanthorn.AST
 -- High level: Expressions
 --
 
-expr = letRecExpr <|> letExpr <|> ifExpr <|> primitive <|> reference
+expr = letRecExpr <|> letExpr <|> ifExpr <|> primExpr <|> reference
 
 letRecExpr = do
     keyword "letrec"
-    b <- many (binding)
-    keyword "in"
+    b <- manyTill (binding) (keyword "in")
     e <- expr
     return (LetRec b e)
 
 letExpr = do
     keyword "let"
-    b <- many (binding)
-    keyword "in"
+    b <- manyTill (binding) (keyword "in")
     e <- expr
     return (LetStar b e)
 
 binding = do
-    notFollowedBy (keyword "in")
     n <- name
     keyword "="
     e <- expr
@@ -58,7 +55,7 @@ ifExpr = do
 -- Primitives
 ---
 
-primitive = funLit <|> numLit
+primExpr = funLit <|> numLit
 
 funLit = do
     keyword "fun"
