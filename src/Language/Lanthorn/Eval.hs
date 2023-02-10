@@ -2,27 +2,30 @@ module Language.Lanthorn.Eval where
 
 import Language.Lanthorn.AST
 import qualified Language.Lanthorn.Env as Env
-import Language.Lanthorn.Value (Value(Boolean, Function, Number, Syntax))
+import Language.Lanthorn.Value (Value(Boolean, Function, Number, Syntax, StringV))
 
 
 unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function valueof_, Function numlit_, Function syntax_, Function fun_] =
-    -- To do this properly, we need a "Name" type value at the object level (i.e. a string).
     case e of
         Apply name exprs ->
-            apply_ (map (Syntax) exprs)
+            -- TODO we need to supply exprs as a list,
+            -- because otherwise, how do you know the arity?
+            apply_ $ [StringV name] ++ (map (Syntax) exprs)
         LetStar bindings expr ->
             -- TODO: map out bindings
             let_ [Syntax expr]
         If cexpr texpr fexpr ->
             if_ [(Syntax cexpr), (Syntax texpr), (Syntax fexpr)]
-        ValueOf n ->
-            valueof_ [] -- TODO: string
+        ValueOf name ->
+            valueof_ [StringV name]
         NumLit i ->
             numlit_ [Number i]
         Quoted e ->
             syntax_ [Syntax e]
         Fun names expr ->
-            fun_ [Syntax expr]
+            -- TODO we need to supply names as a list,
+            -- because otherwise, how do you know the arity?
+            fun_ $ (map (StringV) names) ++ [Syntax expr]
 
 
 stdEnv = Env.extend

@@ -12,6 +12,7 @@ import Language.Lanthorn.AST
 -- IfExpr      ::= "if" Expr "then" Expr "else" Expr.
 -- Primitive   ::= NumLit | FunLit | SyntaxLit.
 -- FunLit      ::= "fun" "(" Name {"," Name} ")" "->" Expr.
+-- SyntaxLit   ::= "[[" Expr "]]".
 -- Reference   ::= Name [Application].
 -- Application ::= "(" [Expr {"," Expr}] ")".
 -- NumLit      ::= <<0-9+>> .

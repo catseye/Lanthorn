@@ -519,7 +519,7 @@ Eval.
 `unsyntax`, a crude destructorizer for syntax.
 
     unsyntax([[ zed(1) ]],
-       fun(e) -> 0,
+       fun(e) -> e,
        fun(e) -> 1,
        fun(e) -> 2,
        fun(e) -> 3,
@@ -527,51 +527,51 @@ Eval.
        fun(e) -> 5,
        fun(e) -> 6
     )
-    => 0
+    => "zed"
 
     unsyntax([[ let a = 8 in a ]],
        fun(e) -> 0,
-       fun(e) -> 1,
+       fun(e) -> e,
        fun(e) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
        fun(e) -> 6
     )
-    => 1
+    => <<syntax>>
 
     unsyntax([[ if eq(a, a) then a else 0 ]],
        fun(e) -> 0,
        fun(e) -> 1,
-       fun(e) -> 2,
+       fun(e) -> e,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
        fun(e) -> 6
     )
-    => 2
+    => <<syntax>>
 
     unsyntax([[ a ]],
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
-       fun(e) -> 3,
+       fun(e) -> e,
        fun(e) -> 4,
        fun(e) -> 5,
        fun(e) -> 6
     )
-    => 3
+    => "a"
 
     unsyntax([[ 66 ]],
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
        fun(e) -> 3,
-       fun(e) -> 4,
+       fun(e) -> e,
        fun(e) -> 5,
        fun(e) -> 6
     )
-    => 4
+    => 66
 
     unsyntax([[ [[ eq(a, a) ]] ]],
        fun(e) -> 0,
@@ -579,10 +579,10 @@ Eval.
        fun(e) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
-       fun(e) -> 5,
+       fun(e) -> e,
        fun(e) -> 6
     )
-    => 5
+    => <<syntax>>
 
     unsyntax([[ fun(e) -> 0 ]],
        fun(e) -> 0,
@@ -591,6 +591,6 @@ Eval.
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> e
     )
-    => 6
+    => "e"
