@@ -467,58 +467,70 @@ I can live with that for now.
 Appendix B
 ----------
 
+List.
+
+    -> Tests for functionality "Pretty-print Lanthorn Program"
+
+    [1, 2, 3]
+    => [1, 2, 3]
+
+    -> Tests for functionality "Evaluate Lanthorn Program"
+
+    [1, 2, 3]
+    => [1,2,3]
+
 Quote.
 
     -> Tests for functionality "Pretty-print Lanthorn Program"
 
     let a = 1
         b = 1
-        in [[ zed(a, b) ]]
+        in << zed(a, b) >>
     => let
     =>   a = 1
     =>   b = 1
     => in
-    =>   [[ zed(a, b) ]]
+    =>   << zed(a, b) >>
 
     -> Tests for functionality "Evaluate Lanthorn Program"
 
     let a = 1
         b = 1
-        in [[ zed(a, b) ]]
+        in << zed(a, b) >>
     => <<syntax>>
 
-    eq([[ zed(a, b) ]], [[ zed(a, b) ]])
+    eq(<< zed(a, b) >>, << zed(a, b) >>)
     => true
 
-    eq([[ zed(a, [[ b ]]) ]], [[ zed(a, [[ b ]]) ]])
+    eq(<< zed(a, << b >>) >>, << zed(a, << b >>) >>)
     => true
 
-    eq([[ zed(a, b) ]], [[ zed(a, c) ]])
+    eq(<< zed(a, b) >>, << zed(a, c) >>)
     => false
 
 Eval.
 
-    eval([[ 66 ]])
+    eval(<< 66 >>)
     => 66
 
-    eval([[
+    eval(<<
       let p = 99 r = fun(x) -> add(p, x) in r(1)
-    ]])
+    >>)
     => 100
 
-    let f = eval([[
+    let f = eval(<<
       let p = 99 r = fun(x) -> add(p, x) in r
-    ]]) in f(12)
+    >>) in f(12)
     => 111
 
-    let p = 99 in eval([[
+    let p = 99 in eval(<<
       let r = fun(x) -> p in r(66)
-    ]])
+    >>)
     ?> Not in scope: p
 
 `unsyntax`, a crude destructorizer for syntax.
 
-    unsyntax([[ zed(1) ]],
+    unsyntax(<< zed(1) >>,
        fun(e) -> e,
        fun(e) -> 1,
        fun(e) -> 2,
@@ -529,7 +541,7 @@ Eval.
     )
     => "zed"
 
-    unsyntax([[ let a = 8 in a ]],
+    unsyntax(<< let a = 8 in a >>,
        fun(e) -> 0,
        fun(e) -> e,
        fun(e) -> 2,
@@ -540,7 +552,7 @@ Eval.
     )
     => <<syntax>>
 
-    unsyntax([[ if eq(a, a) then a else 0 ]],
+    unsyntax(<< if eq(a, a) then a else 0 >>,
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> e,
@@ -551,7 +563,7 @@ Eval.
     )
     => <<syntax>>
 
-    unsyntax([[ a ]],
+    unsyntax(<< a >>,
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
@@ -562,7 +574,7 @@ Eval.
     )
     => "a"
 
-    unsyntax([[ 66 ]],
+    unsyntax(<< 66 >>,
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
@@ -573,7 +585,7 @@ Eval.
     )
     => 66
 
-    unsyntax([[ [[ eq(a, a) ]] ]],
+    unsyntax(<< << eq(a, a) >> >>,
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
@@ -584,7 +596,7 @@ Eval.
     )
     => <<syntax>>
 
-    unsyntax([[ fun(e) -> 0 ]],
+    unsyntax(<< fun(e,f,g) -> 0 >>,
        fun(e) -> 0,
        fun(e) -> 1,
        fun(e) -> 2,
@@ -593,4 +605,4 @@ Eval.
        fun(e) -> 5,
        fun(e) -> e
     )
-    => "e"
+    => ["e","f","g"]

@@ -19,7 +19,9 @@ pretty i (If testExpr trueExpr falseExpr) =
 pretty i (NumLit n) = show n
 pretty i (ValueOf n) = n
 pretty i (Quoted expr) =
-    "[[ " ++ pretty (i+1) expr ++ " ]]"
+    "<< " ++ pretty (i+1) expr ++ " >>"
+pretty i (ListExpr exprs) =
+    "[" ++ (prettyExprList i exprs) ++ "]"
 
 prettyFormals i [] = ""
 prettyFormals i [name] = name

@@ -2,15 +2,13 @@ module Language.Lanthorn.Eval where
 
 import Language.Lanthorn.AST
 import qualified Language.Lanthorn.Env as Env
-import Language.Lanthorn.Value (Value(Boolean, Function, Number, Syntax, StringV))
+import Language.Lanthorn.Value (Value(Boolean, Function, Number, Syntax, StringV, ListV))
 
 
 unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function valueof_, Function numlit_, Function syntax_, Function fun_] =
     case e of
         Apply name exprs ->
-            -- TODO we need to supply exprs as a list,
-            -- because otherwise, how do you know the arity?
-            apply_ $ [StringV name] ++ (map (Syntax) exprs)
+            apply_ $ [StringV name, ListV $ map (Syntax) exprs]
         LetStar bindings expr ->
             -- TODO: map out bindings
             let_ [Syntax expr]
@@ -20,12 +18,11 @@ unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function value
             valueof_ [StringV name]
         NumLit i ->
             numlit_ [Number i]
+        -- TODO need another branch now, for lists now, sigh
         Quoted e ->
             syntax_ [Syntax e]
         Fun names expr ->
-            -- TODO we need to supply names as a list,
-            -- because otherwise, how do you know the arity?
-            fun_ $ (map (StringV) names) ++ [Syntax expr]
+            fun_ $ [ListV $ map (StringV) names, Syntax expr]
 
 
 stdEnv = Env.extend
@@ -69,6 +66,8 @@ evalExpr env (If c t f) =
         Boolean True -> evalExpr env t
         Boolean False -> evalExpr env f
         other -> error ("Expected boolean: " ++ show other)
+
+evalExpr env (ListExpr exprs) = ListV $ map (evalExpr env) exprs
 
 evalExpr env (Fun formals body) =
     let

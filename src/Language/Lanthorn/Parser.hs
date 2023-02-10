@@ -7,12 +7,13 @@ import Language.Lanthorn.AST
 
 
 --
--- Expr        ::= LetExpr | CaseExpr | IfExpr | Primitive | Application.
+-- Expr        ::= LetExpr | CaseExpr | IfExpr | ListExpr | Primitive | Application.
 -- LetExpr     ::= "let" Name "=" Expr {"," Name "=" Expr} "in" Expr.
 -- IfExpr      ::= "if" Expr "then" Expr "else" Expr.
+-- ListExpr    ::= "[" [Expr {"," Expr} "]".
 -- Primitive   ::= NumLit | FunLit | SyntaxLit.
 -- FunLit      ::= "fun" "(" Name {"," Name} ")" "->" Expr.
--- SyntaxLit   ::= "[[" Expr "]]".
+-- SyntaxLit   ::= "<<" Expr ">>".
 -- Reference   ::= Name [Application].
 -- Application ::= "(" [Expr {"," Expr}] ")".
 -- NumLit      ::= <<0-9+>> .
@@ -23,7 +24,7 @@ import Language.Lanthorn.AST
 -- High level: Expressions
 --
 
-expr = letRecExpr <|> letExpr <|> ifExpr <|> primExpr <|> reference
+expr = letRecExpr <|> letExpr <|> ifExpr <|> listExpr <|> primExpr <|> reference
 
 letRecExpr = do
     keyword "letrec"
@@ -52,6 +53,12 @@ ifExpr = do
     f <- expr
     return (If c t f)
 
+listExpr = do
+    keyword "["
+    elems <- sepBy (expr) (keyword ",")
+    keyword "]"
+    return (ListExpr elems)
+
 --
 -- Primitives
 ---
@@ -78,9 +85,9 @@ application n = do
     return (Apply n actuals)
 
 syntaxLit = do
-    keyword "[["
+    keyword "<<"
     e <- expr
-    keyword "]]"
+    keyword ">>"
     return (Quoted e)
 
 --
