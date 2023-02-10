@@ -80,7 +80,7 @@ syntaxLit = do
     keyword "[["
     e <- expr
     keyword "]]"
-    return (Syntax e)
+    return (Quoted e)
 
 --
 -- Low level: Concrete things

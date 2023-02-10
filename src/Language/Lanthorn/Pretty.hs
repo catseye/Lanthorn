@@ -18,7 +18,7 @@ pretty i (If testExpr trueExpr falseExpr) =
     "if " ++ (pretty (i+1) testExpr) ++ " then " ++ (pretty (i+1) trueExpr) ++ " else " ++ (pretty (i+1) falseExpr)
 pretty i (NumLit n) = show n
 pretty i (ValueOf n) = n
-pretty i (Syntax expr) =
+pretty i (Quoted expr) =
     "[[ " ++ pretty (i+1) expr ++ " ]]"
 
 prettyFormals i [] = ""

@@ -9,5 +9,5 @@ data Expr = Fun [Name] Expr
           | If Expr Expr Expr
           | NumLit Integer
           | ValueOf Name
-          | Syntax Expr
+          | Quoted Expr
     deriving (Show, Ord, Eq)

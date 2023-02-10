@@ -490,6 +490,9 @@ Quote.
     eq([[ zed(a, b) ]], [[ zed(a, b) ]])
     => true
 
+    eq([[ zed(a, [[ b ]]) ]], [[ zed(a, [[ b ]]) ]])
+    => true
+
     eq([[ zed(a, b) ]], [[ zed(a, c) ]])
     => false
 
@@ -512,3 +515,82 @@ Eval.
       let r = fun(x) -> p in r(66)
     ]])
     ?> Not in scope: p
+
+`unsyntax`, a crude destructorizer for syntax.
+
+    unsyntax([[ zed(1) ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 0
+
+    unsyntax([[ let a = 8 in a ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 1
+
+    unsyntax([[ if eq(a, a) then a else 0 ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 2
+
+    unsyntax([[ a ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 3
+
+    unsyntax([[ 66 ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 4
+
+    unsyntax([[ [[ eq(a, a) ]] ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 5
+
+    unsyntax([[ fun(e) -> 0 ]],
+       fun(e) -> 0,
+       fun(e) -> 1,
+       fun(e) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6
+    )
+    => 6
