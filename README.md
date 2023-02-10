@@ -462,3 +462,34 @@ Note that there is probably a case where a `letrec` nested another `letrec`, and
 which shadows variables of the enclosing `letrec`, produces a less readable
 error message about shadowing, because it mentions the mangled names; but
 I can live with that for now.
+
+Appendix B
+----------
+
+Quote.
+
+    -> Tests for functionality "Pretty-print Lanthorn Program"
+
+    let a = 1
+        b = 1
+        in [[ zed(a, b) ]]
+    => let
+    =>   a = 1
+    =>   b = 1
+    => in
+    =>   [[ zed(a, b) ]]
+
+    -> Tests for functionality "Evaluate Lanthorn Program"
+
+    let a = 1
+        b = 1
+        in [[ zed(a, b) ]]
+    => <<syntax>>
+
+    eq([[ zed(a, b) ]], [[ zed(a, b) ]])
+    => true
+
+    eq([[ zed(a, b) ]], [[ zed(a, c) ]])
+    => false
+
+Eval.  TK.

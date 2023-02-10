@@ -10,7 +10,7 @@ import Language.Lanthorn.AST
 -- Expr        ::= LetExpr | CaseExpr | IfExpr | Primitive | Application.
 -- LetExpr     ::= "let" Name "=" Expr {"," Name "=" Expr} "in" Expr.
 -- IfExpr      ::= "if" Expr "then" Expr "else" Expr.
--- Primitive   ::= NumLit | FunLit.
+-- Primitive   ::= NumLit | FunLit | SyntaxLit.
 -- FunLit      ::= "fun" "(" Name {"," Name} ")" "->" Expr.
 -- Reference   ::= Name [Application].
 -- Application ::= "(" [Expr {"," Expr}] ")".
@@ -55,7 +55,7 @@ ifExpr = do
 -- Primitives
 ---
 
-primExpr = funLit <|> numLit
+primExpr = funLit <|> numLit <|> syntaxLit
 
 funLit = do
     keyword "fun"
@@ -75,6 +75,12 @@ application n = do
     actuals <- sepBy (expr) (keyword ",")
     keyword ")"
     return (Apply n actuals)
+
+syntaxLit = do
+    keyword "[["
+    e <- expr
+    keyword "]]"
+    return (Syntax e)
 
 --
 -- Low level: Concrete things

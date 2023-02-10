@@ -19,6 +19,8 @@ evalExpr env (ValueOf name) = case Env.lookup name env of
     Just value -> value
     Nothing -> error ("Not in scope: " ++ name ++ " (env: " ++ (show env) ++ ")")
 
+evalExpr env (Syntax e) = Value.Syntax e
+
 evalExpr env (LetStar [] body) = evalExpr env body
 evalExpr env (LetStar ((name, expr):rest) body) =
     let
