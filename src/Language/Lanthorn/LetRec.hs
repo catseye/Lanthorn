@@ -1,7 +1,6 @@
 module Language.Lanthorn.LetRec where
 
 import Language.Lanthorn.AST
-import Language.Lanthorn.Pretty
 
 
 convert (Fun formals body) = Fun formals (convert body)
