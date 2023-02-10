@@ -5,7 +5,7 @@ import qualified Language.Lanthorn.Env as Env
 import Language.Lanthorn.Value (Value(Boolean, Function, Number, Syntax, StringV, ListV))
 
 
-unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function valueof_, Function numlit_, Function syntax_, Function fun_] =
+unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function valueof_, Function numlit_, Function syntax_, Function fun_, Function list_] =
     case e of
         Apply name exprs ->
             apply_ $ [StringV name, ListV $ map (Syntax) exprs]
@@ -23,6 +23,8 @@ unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function value
             syntax_ [Syntax e]
         Fun names expr ->
             fun_ $ [ListV $ map (StringV) names, Syntax expr]
+        ListExpr exprs ->
+            list_ $ [ListV $ map (Syntax) exprs]
 
 
 stdEnv = Env.extend

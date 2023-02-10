@@ -531,78 +531,97 @@ Eval.
 `unsyntax`, a crude destructorizer for syntax.
 
     unsyntax(<< zed(1) >>,
-       fun(e) -> e,
-       fun(e) -> 1,
-       fun(e) -> 2,
+       fun(n,e)   -> n,
+       fun(e)     -> 1,
+       fun(c,t,f) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => "zed"
 
     unsyntax(<< let a = 8 in a >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> e,
-       fun(e) -> 2,
+       fun(c,t,f) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => <<syntax>>
 
     unsyntax(<< if eq(a, a) then a else 0 >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> 1,
-       fun(e) -> e,
+       fun(c,t,f) -> c,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => <<syntax>>
 
     unsyntax(<< a >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> 1,
-       fun(e) -> 2,
+       fun(c,t,f) -> 2,
        fun(e) -> e,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => "a"
 
     unsyntax(<< 66 >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> 1,
-       fun(e) -> 2,
+       fun(c,t,f) -> 2,
        fun(e) -> 3,
        fun(e) -> e,
        fun(e) -> 5,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => 66
 
     unsyntax(<< << eq(a, a) >> >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> 1,
-       fun(e) -> 2,
+       fun(c,t,f) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> e,
-       fun(e) -> 6
+       fun(e) -> 6,
+       fun(e) -> 7
     )
     => <<syntax>>
 
     unsyntax(<< fun(e,f,g) -> 0 >>,
-       fun(e) -> 0,
+       fun(n,e) -> 0,
        fun(e) -> 1,
-       fun(e) -> 2,
+       fun(c,t,f) -> 2,
        fun(e) -> 3,
        fun(e) -> 4,
        fun(e) -> 5,
-       fun(e) -> e
+       fun(e) -> e,
+       fun(e) -> 7
     )
     => ["e","f","g"]
+
+    unsyntax(<< [a,b] >>,
+       fun(n,e) -> 0,
+       fun(e) -> 1,
+       fun(c,t,f) -> 2,
+       fun(e) -> 3,
+       fun(e) -> 4,
+       fun(e) -> 5,
+       fun(e) -> 6,
+       fun(e) -> e
+    )
+    => [<<syntax>>,<<syntax>>]
