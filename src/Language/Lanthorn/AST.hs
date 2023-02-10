@@ -7,7 +7,7 @@ data Expr = Fun [Name] Expr
           | LetRec [(Name, Expr)] Expr        -- will be rewritten away before evaluation.
           | LetStar [(Name, Expr)] Expr
           | If Expr Expr Expr
-          | ListExpr [Expr]
+          | List [Expr]
           | NumLit Integer
           | ValueOf Name
           | Quoted Expr

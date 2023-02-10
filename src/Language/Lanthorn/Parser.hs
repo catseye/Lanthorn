@@ -57,7 +57,7 @@ listExpr = do
     keyword "["
     elems <- sepBy (expr) (keyword ",")
     keyword "]"
-    return (ListExpr elems)
+    return (List elems)
 
 --
 -- Primitives

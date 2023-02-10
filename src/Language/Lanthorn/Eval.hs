@@ -23,7 +23,7 @@ unsyntax [Syntax e, Function apply_, Function let_, Function if_, Function value
             syntax_ [Syntax e]
         Fun names expr ->
             fun_ $ [ListV $ map (StringV) names, Syntax expr]
-        ListExpr exprs ->
+        List exprs ->
             list_ $ [ListV $ map (Syntax) exprs]
 
 
@@ -69,7 +69,7 @@ evalExpr env (If c t f) =
         Boolean False -> evalExpr env f
         other -> error ("Expected boolean: " ++ show other)
 
-evalExpr env (ListExpr exprs) = ListV $ map (evalExpr env) exprs
+evalExpr env (List exprs) = ListV $ map (evalExpr env) exprs
 
 evalExpr env (Fun formals body) =
     let
