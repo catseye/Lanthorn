@@ -3,11 +3,23 @@ module Language.Lanthorn.Eval where
 import Language.Lanthorn.AST
 import qualified Language.Lanthorn.Env as Env
 import qualified Language.Lanthorn.Value as Value
+import Language.Lanthorn.Value (Value(Boolean, Function, Number))
 
+
+stdEnv = Env.extend
+  [
+    ("true", Boolean True),
+    ("false", Boolean False),
+    ("add", Function (\[Number a, Number b] -> Number (a + b))),
+    ("sub", Function (\[Number a, Number b] -> Number (a - b))),
+    ("mul", Function (\[Number a, Number b] -> Number (a * b))),
+    ("eq", Function (\[a, b] -> Boolean (a == b))),
+    ("eval", Function (\[Value.Syntax e] -> evalExpr stdEnv e))
+  ] Env.empty
 
 evalTopLevelExpr :: Expr -> Either String Value.Value
 evalTopLevelExpr expr =
-    Right (evalExpr Env.stdEnv expr)
+    Right (evalExpr stdEnv expr)
 
 --
 -- Evaluator

@@ -492,4 +492,22 @@ Quote.
     eq([[ zed(a, b) ]], [[ zed(a, c) ]])
     => false
 
-Eval.  TK.
+Eval.
+
+    eval([[ 66 ]])
+    => 66
+
+    eval([[
+      let p = 99 r = fun(x) -> add(p, x) in r(1)
+    ]])
+    => 100
+
+    let f = eval([[
+      let p = 99 r = fun(x) -> add(p, x) in r
+    ]]) in f(12)
+    => 111
+
+    let p = 99 in eval([[
+      let r = fun(x) -> p in r(66)
+    ]])
+    ?> Not in scope: p

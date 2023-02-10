@@ -16,14 +16,3 @@ extend ((name, value):rest) env =
     case (Map.lookup name env) of
         Just existing -> error ("Already defined: " ++ name)
         Nothing -> extend rest $ Map.insert name value env
-
-
-stdEnv = extend
-  [
-    ("true", Boolean True),
-    ("false", Boolean False),
-    ("add", Function (\[Number a, Number b] -> Number (a + b))),
-    ("sub", Function (\[Number a, Number b] -> Number (a - b))),
-    ("mul", Function (\[Number a, Number b] -> Number (a * b))),
-    ("eq", Function (\[a, b] -> Boolean (a == b)))
-  ] empty
