@@ -7,7 +7,7 @@ import System.IO
 import qualified Language.Lanthorn.AST as AST
 import qualified Language.Lanthorn.Pretty as Pretty
 import qualified Language.Lanthorn.Parser as Parser
-import qualified Language.Lanthorn.LetRec as LetRec
+import qualified Language.Lanthorn.LetRec2 as LetRec
 import qualified Language.Lanthorn.Eval as Eval
 
 
