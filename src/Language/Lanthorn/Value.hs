@@ -1,6 +1,8 @@
 module Language.Lanthorn.Value where
 
 import Language.Lanthorn.AST
+import Language.Lanthorn.Pretty
+
 
 data Value = Number Integer
            | Boolean Bool
@@ -14,7 +16,7 @@ instance Show Value where
     show (Boolean True)  = "true"
     show (Boolean False) = "false"
     show (Function _)    = "<<function>>"
-    show (Syntax _)      = "<<syntax>>"
+    show (Syntax s)      = "<< " ++ (pretty 0 s) ++ " >>"
     show (StringV s)     = (show s)
     show (ListV l)       = (show l)
 

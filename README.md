@@ -497,7 +497,7 @@ Quote.
     let a = 1
         b = 1
         in << zed(a, b) >>
-    => <<syntax>>
+    => << zed(a, b) >>
 
     eq(<< zed(a, b) >>, << zed(a, b) >>)
     => true
@@ -540,7 +540,7 @@ Eval.
        fun(a,e)   -> 6,
        fun(e)     -> 7
     )
-    => ["zed",[<<syntax>>]]
+    => ["zed",[<< 1 >>]]
 
     unsyntax(<< let a = 8 in a >>,
        fun(n,e)   -> 0,
@@ -552,7 +552,7 @@ Eval.
        fun(a,e)   -> 6,
        fun(e)     -> 7
     )
-    => <<syntax>>
+    => << a >>
 
     unsyntax(<< if eq(a, a) then a else 0 >>,
        fun(n,e)   -> 0,
@@ -564,7 +564,7 @@ Eval.
        fun(a,e)   -> 6,
        fun(e)     -> 7
     )
-    => [<<syntax>>,<<syntax>>,<<syntax>>]
+    => [<< eq(a, a) >>,<< a >>,<< 0 >>]
 
     unsyntax(<< a >>,
        fun(n,e)   -> 0,
@@ -600,7 +600,7 @@ Eval.
        fun(a,e)   -> 6,
        fun(e)     -> 7
     )
-    => <<syntax>>
+    => << eq(a, a) >>
 
     unsyntax(<< fun(e,f,g) -> 0 >>,
        fun(n,e)   -> 0,
@@ -612,7 +612,7 @@ Eval.
        fun(a,e)   -> [a,e],
        fun(e)     -> 7
     )
-    => [["e","f","g"],<<syntax>>]
+    => [["e","f","g"],<< 0 >>]
 
     unsyntax(<< [a,b] >>,
        fun(n,e)   -> 0,
@@ -624,4 +624,4 @@ Eval.
        fun(a,e)   -> 6,
        fun(e)     -> e
     )
-    => [<<syntax>>,<<syntax>>]
+    => [<< a >>,<< b >>]
