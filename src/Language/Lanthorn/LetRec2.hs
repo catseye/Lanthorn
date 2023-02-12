@@ -26,19 +26,21 @@ convertArms = map (\((ante, cons):rest) -> ((convert ante), (convert cons)))
 wrapperNameOuter name = name ++ "$0"
 wrapperNameInner name = name ++ "$1"
 
-createEnrichedBindings [] injecteds = []
-createEnrichedBindings (binding@(name, (Fun formals body)):rest) injecteds =
-    let
-        name' = wrapperNameOuter name
-        injectedNames = map (fst) injecteds
-        formals' = formals ++ (map (wrapperNameInner) injectedNames)
-        body' = (LetStar (createLocalBindings injecteds injectedNames) body)
-        expr' = (Fun formals' body')
-        binding = (name', expr')
-    in
-        (binding:createEnrichedBindings rest injecteds)
-createEnrichedBindings (binding:rest) injecteds =
-    (binding:createEnrichedBindings rest injecteds)
+createEnrichedBindings bindings injecteds =
+    map createEnrichedBinding bindings where
+        createEnrichedBinding binding =
+            case binding of
+                (name, (Fun formals body)) ->
+                    let
+                        name' = wrapperNameOuter name
+                        injectedNames = map (fst) injecteds
+                        formals' = formals ++ (map (wrapperNameInner) injectedNames)
+                        body' = (LetStar (createLocalBindings injecteds injectedNames) body)
+                        expr' = (Fun formals' body')
+                    in
+                        (name', expr')
+                other ->
+                    other
 
 createLocalBindings [] _ = []
 createLocalBindings (injected@(injectedName, formals):injecteds) allInjectedNames =
