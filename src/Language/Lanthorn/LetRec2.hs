@@ -19,7 +19,6 @@ convert (LetStar bindings body) = LetStar (convertBindings bindings) (convert bo
 convert other = other
 
 convertBindings = map (\(name, expr) -> (name, (convert expr)))
-convertArms = map (\((ante, cons):rest) -> ((convert ante), (convert cons)))
 
 --
 
@@ -44,21 +43,23 @@ createEnrichedBindings bindings injecteds =
 
 createLocalBindings injecteds allInjectedNames =
     map createLocalBinding injecteds where
-        createLocalBinding njected@(injectedName, formals) =
+        createLocalBinding (injectedName, formals) =
             let
                 formals' = map (wrapperNameInner) formals
                 actuals = map (ValueOf) (formals' ++ (map (wrapperNameInner) allInjectedNames))
             in
                 (injectedName, Fun formals' (Apply (wrapperNameInner injectedName) actuals))
 
-createWrapperBindings [] injecteds = []
-createWrapperBindings ((name, (Fun formals body)):rest) injecteds =
-    let
-        name' = name
-        actuals = map (ValueOf) (formals ++ (map (\x -> wrapperNameOuter $ fst x) injecteds))
-        expr' = Fun formals (Apply (wrapperNameOuter name) actuals)
-        binding = (name', expr')
-    in
-        (binding:createWrapperBindings rest injecteds)
-createWrapperBindings (binding:rest) injecteds =
-    createWrapperBindings rest injecteds
+createWrapperBindings bindings injecteds =
+    foldl createWrapperBinding [] bindings where
+        createWrapperBinding acc binding =
+            case binding of
+                (name, (Fun formals body)) ->
+                    let
+                        name' = name
+                        actuals = map (ValueOf) (formals ++ (map (\x -> wrapperNameOuter $ fst x) injecteds))
+                        expr' = Fun formals (Apply (wrapperNameOuter name) actuals)
+                    in
+                        acc ++ [(name', expr')]
+                other ->
+                    acc
