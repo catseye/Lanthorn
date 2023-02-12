@@ -14,9 +14,6 @@ convertBindings :: [(String, Expr)] -> [(String, Expr)]
 convertBindings [] = []
 convertBindings ((name, expr):rest) = ((name, (convert expr)):(convertBindings rest))
 
-convertArms [] = []
-convertArms ((ante, cons):rest) = (((convert ante), (convert cons)):(convertArms rest))
-
 convertToLetStar :: [(String, Expr)] -> Expr -> Expr
 convertToLetStar bindings body =
     let
