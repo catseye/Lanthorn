@@ -42,14 +42,14 @@ createEnrichedBindings bindings injecteds =
                 other ->
                     other
 
-createLocalBindings [] _ = []
-createLocalBindings (injected@(injectedName, formals):injecteds) allInjectedNames =
-    let
-        formals' = map (wrapperNameInner) formals
-        actuals = map (ValueOf) (formals' ++ (map (wrapperNameInner) allInjectedNames))
-        binding = (injectedName, Fun formals' (Apply (wrapperNameInner injectedName) actuals))
-    in
-        (binding:createLocalBindings injecteds allInjectedNames)
+createLocalBindings injecteds allInjectedNames =
+    map createLocalBinding injecteds where
+        createLocalBinding njected@(injectedName, formals) =
+            let
+                formals' = map (wrapperNameInner) formals
+                actuals = map (ValueOf) (formals' ++ (map (wrapperNameInner) allInjectedNames))
+            in
+                (injectedName, Fun formals' (Apply (wrapperNameInner injectedName) actuals))
 
 createWrapperBindings [] injecteds = []
 createWrapperBindings ((name, (Fun formals body)):rest) injecteds =
