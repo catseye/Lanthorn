@@ -56,10 +56,9 @@ createWrapperBindings bindings injecteds =
             case binding of
                 (name, (Fun formals body)) ->
                     let
-                        name' = name
                         actuals = map (ValueOf) (formals ++ (map (\x -> wrapperNameOuter $ fst x) injecteds))
                         expr' = Fun formals (Apply (wrapperNameOuter name) actuals)
                     in
-                        acc ++ [(name', expr')]
+                        acc ++ [(name, expr')]
                 other ->
                     acc
