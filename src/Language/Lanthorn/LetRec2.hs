@@ -3,24 +3,22 @@ module Language.Lanthorn.LetRec2 where
 import Language.Lanthorn.AST
 
 
-convert (Fun formals body) = Fun formals (convert body)
-convert (Apply name args) = Apply name (map (convert) args)
-convert (LetRec bindings body) =
-    let
-        bindings' = convertBindings bindings
-        body' = convert body
-        injecteds = map (\(name, (Fun formals _)) -> (name, formals)) bindings'
-        enrichedBindings = createEnrichedBindings bindings' injecteds
-        wrapperBindings = createWrapperBindings bindings' injecteds
-    in
-        LetStar (enrichedBindings ++ wrapperBindings) body'
-convert (If c t f) = If (convert c) (convert t) (convert f)
-convert (LetStar bindings body) = LetStar (convertBindings bindings) (convert body)
-convert other = other
-
-convertBindings = map (\(name, expr) -> (name, (convert expr)))
-
---
+convert ast =
+    case ast of
+        (Fun formals body) -> Fun formals (convert body)
+        (Apply name args) -> Apply name (map (convert) args)
+        (LetRec bindings body) ->
+            let
+                bindings' = map (\(name, expr) -> (name, (convert expr))) bindings
+                body' = convert body
+                injecteds = map (\(name, (Fun formals _)) -> (name, formals)) bindings'
+                enrichedBindings = createEnrichedBindings bindings' injecteds
+                wrapperBindings = createWrapperBindings bindings' injecteds
+            in
+                LetStar (enrichedBindings ++ wrapperBindings) body'
+        (If c t f) -> If (convert c) (convert t) (convert f)
+        (LetStar bindings body) -> LetStar (map (\(name, expr) -> (name, (convert expr))) bindings) (convert body)
+        other -> other
 
 wrapperNameOuter name = name ++ "$0"
 wrapperNameInner name = name ++ "$1"
