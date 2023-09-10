@@ -1,6 +1,6 @@
 module Language.Lanthorn.Env where
 
-import qualified Data.Map.Strict as Map
+import qualified Data.Map as Map
 
 import Language.Lanthorn.Value
 
@@ -22,6 +22,7 @@ stdEnv = extend
   [
     ("true", Boolean True),
     ("false", Boolean False),
+    ("add", Function (\[Number a, Number b] -> Number (a + b))),
     ("sub", Function (\[Number a, Number b] -> Number (a - b))),
     ("mul", Function (\[Number a, Number b] -> Number (a * b))),
     ("eq", Function (\[a, b] -> Boolean (a == b)))

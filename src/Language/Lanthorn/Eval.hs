@@ -51,3 +51,5 @@ evalExpr env (Apply name actualExprs) =
             in
                 f actuals
         other -> error ("Expected function: " ++ show other)
+
+evalExpr env other = error ("Unimplemented: " ++ show other)
