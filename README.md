@@ -625,3 +625,12 @@ Eval.
        fun(e)     -> e
     )
     => [<< a >>,<< b >>]
+
+TODO
+----
+
+*   builtin function `concat` (strings, lists)
+*   functions `map`, `fold` (possibly built-in)
+*   constructors for syntax (`mk_apply`, `mk_fun`, etc)
+*   what would be good would be to genericize the abstract recursive type
+    that is used for syntax and for lists currently.
