@@ -1,7 +1,9 @@
 Lanthorn
 ========
 
-_Version 1.0_
+Version 1.0 | _Entry_ @ [catseye.tc](https://catseye.tc/node/Lanthorn)
+| _See also:_ [Lariat](https://catseye.tc/node/Lariat)
+* [Iphigeneia](https://catseye.tc/node/Iphigeneia)
 
 When I first came across a explanation of how `letrec` works, it was
 in terms of updating references: each of the names is bound to a cell,
@@ -41,7 +43,7 @@ Basically, what we want to do, is take this...
 ...and turn it into this.
 
     let
-        odd0  = fun(x, odd$1, even$1) ->
+        odd0  = fun(x, odd1, even1) ->
                      let
                          odd = fun(x) -> odd1(x, odd1, even1)
                          even = fun(x) -> even1(x, odd1, even1)

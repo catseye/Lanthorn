@@ -1,7 +1,6 @@
 module Language.Lanthorn.LetRec where
 
 import Language.Lanthorn.AST
-import Language.Lanthorn.Pretty
 
 
 convert (Fun formals body) = Fun formals (convert body)
@@ -14,9 +13,6 @@ convert other = other
 convertBindings :: [(String, Expr)] -> [(String, Expr)]
 convertBindings [] = []
 convertBindings ((name, expr):rest) = ((name, (convert expr)):(convertBindings rest))
-
-convertArms [] = []
-convertArms ((ante, cons):rest) = (((convert ante), (convert cons)):(convertArms rest))
 
 convertToLetStar :: [(String, Expr)] -> Expr -> Expr
 convertToLetStar bindings body =
