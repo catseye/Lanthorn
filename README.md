@@ -1,8 +1,7 @@
 Lanthorn
 ========
 
-Version 1.0
-| _See also:_ [Iphigeneia](https://github.com/catseye/Iphigeneia#readme)
+_Version 1.0_
 
 When I first came across a explanation of how `letrec` works, it was
 in terms of updating references: each of the names is bound to a cell,
@@ -96,9 +95,8 @@ parameters they had, hiding all these extra parameters.
 Related Work
 ------------
 
-[Xavier Pinho](https://github.com/xavierpinho) has written up an
-alternative way of transforming `letrec` into `let`, using
-surjective pairing and the Y combinator, in
+Xavier Pinho has written up an alternative way of transforming `letrec`
+into `let`, using surjective pairing and the Y combinator, in
 [an issue on the Lanthorn project on GitHub](https://github.com/catseye/Lanthorn/issues/1).
 
 Appendix A
